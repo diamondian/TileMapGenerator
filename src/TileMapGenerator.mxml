@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" creationComplete="creationCompleteHandler(event)">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+		 verticalAlign="middle" horizontalAlign="center" horizontalGap="50" paddingLeft="100" paddingRight="100" creationComplete="creationCompleteHandler(event)">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			private var _movedIn:Boolean;
+			private var _tilesManager:TileMapManager;
 			
 			[Bindable]
 			public function get movedIn() : Boolean
@@ -61,18 +63,20 @@
 				var dropfiles : Array = event.clipboard.getData( ClipboardFormats.FILE_LIST_FORMAT ) as Array;
 				try
 				{
-					readSourceFile(dropfiles);
+					readSourceFile(dropfiles);					
 				}
 				catch( error : Error )
 				{
-					Alert.show( "Some errors occured while reading original files.Please try again." );
+					Alert.show( error.message)//"Some errors occured while reading original files.Please try again." );
+					borderShape.setStyle( "backgroundColor", 0xA4A4A4 );	
 				}
 			}
 			
 			
 			private function readSourceFile(dropfiles:Array):void
 			{
-				
+				_tilesManager = TileMapManager.getInstance();
+				_tilesManager.originalFiles = dropfiles;
 			}
 			
 		]]>
@@ -89,6 +93,6 @@
 					 mouseChildren="false" />
 		</mx:VBox>
 	</mx:VBox>
-	<mx:Text height="100%" text="Drag and drop the folder contains original png files or the files themselfs into the square" width="100%"
+	<mx:Text  width="100%" text="Drag and drop the folder contains original png files or the files themselfs into the square"
 			 color="#C8C8C8" fontSize="12" textAlign="center" />
 </mx:HBox>

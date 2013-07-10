@@ -4,16 +4,16 @@
 						height="500" layout="vertical" width="800"
 						backgroundColor="#222222" paddingBottom="0" paddingLeft="0" paddingRight="0"
 						paddingTop="0" verticalGap="0"
-						showTitleBar="false" showStatusBar="false" xmlns:local="*" >
+						showTitleBar="false" showStatusBar="false" xmlns:local="*" applicationComplete="windowedapplication1_applicationCompleteHandler(event)" >
 	<fx:Style source="main.css" />
 	<fx:Script>
 		<![CDATA[
-		
-			
 			import mx.controls.Alert;
+			import mx.events.FlexEvent;
 			
 			[Embed( source='assets/16.png' )]
 			private var icon16 : Class;
+			private var _tilesManager:TileMapManager;
 			
 			
 			protected function label1_clickHandler( event : MouseEvent ) : void
@@ -54,6 +54,17 @@
 				this.exit();
 			}
 			
+			protected function windowedapplication1_applicationCompleteHandler(event:FlexEvent):void
+			{
+				_tilesManager = TileMapManager.getInstance();
+				_tilesManager.addEventListener(TileMapManager.FILE_PROCESSED,fileProcessedHandler);
+			}
+			
+			protected function fileProcessedHandler(event:Event):void
+			{
+				mainViewstack.selectedIndex = 1;
+			}
+			
 		]]>
 	</fx:Script>
 	<mx:HBox height="64" width="100%"
@@ -77,8 +88,9 @@
 					   color="#D9D9D9" fontFamily="Verdana" fontSize="13" fontWeight="bold"
 					   textAlign="left" />
 	</mx:HBox>
-	<mx:ViewStack id="mainViewstack"
+	<mx:ViewStack id="mainViewstack" creationPolicy="all"
 				  height="100%" width="100%">
 		<local:TileMapGenerator/>
+		<local:ParameterPanel/>
 	</mx:ViewStack>
 </mx:WindowedApplication>
