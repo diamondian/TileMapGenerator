@@ -1,6 +1,9 @@
 /* CSS file */
 
-
+Application
+{
+	cornerRadius:0	
+}
 Button
 {
 	fillAlphas: 1.0, 1.0, 1.0, 1.0;
@@ -12,4 +15,20 @@ Button
 	textSelectedColor: #008D9E;
 	themeColor: #00DEFF;
 }
-	
+ComboBox {
+	cornerRadius: 0;
+	color: #cccccc;
+	borderColor: #b7babc;
+	highlightAlphas: 0, 0;
+	fillAlphas: 0, 0, 0, 0;
+	fillColors: #ffffff, #cccccc, #999999, #eeeeee;
+	selectionColor: #999999;
+	textSelectedColor: #ffffff;
+	themeColor: #666666;
+	alternatingItemColors: #000000, #222222;
+	dropdownStyleName: "myComboBoxDropDowns";
+}
+
+.myComboBoxDropDowns {
+	color: #cccccc;
+}
