@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" creationComplete="creationCompleteHandler(event)">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			private var _movedIn:Boolean;
+			
+			[Bindable]
+			public function get movedIn() : Boolean
+			{
+				return _movedIn;
+			}
+			
+			public function set movedIn( value : Boolean ) : void
+			{
+				_movedIn = value;
+				
+				if( value )
+				{
+					borderShape.setStyle( "backgroundColor", 0x66ffb2 );
+				}
+				else
+				{
+					borderShape.setStyle( "backgroundColor", 0xA4A4A4 );
+				}
+			}
+			
+			
+			protected function creationCompleteHandler( event : FlexEvent ) : void
+			{
+				draginArea.addEventListener( NativeDragEvent.NATIVE_DRAG_ENTER, onDragIn );
+				draginArea.addEventListener( NativeDragEvent.NATIVE_DRAG_DROP, onDrop );
+				draginArea.addEventListener( NativeDragEvent.NATIVE_DRAG_EXIT, onExit );
+			}				
+			
+			protected function onDragIn(event:NativeDragEvent):void
+			{
+				movedIn = true;
+				var transferable : Clipboard = event.clipboard;
+				const files : Array = event.clipboard.getData( ClipboardFormats.FILE_LIST_FORMAT ) as Array;
+				if(files.length == 1 && File(files[0]).isDirectory == false){					
+					return;
+				}				
+				for each (var file:File in files) 
+				{
+					if(file.isDirectory || file.extension != "png"){
+						return;
+					}
+				}
+				NativeDragManager.acceptDragDrop( draginArea );
+			}
+			
+			protected function onExit(event:NativeDragEvent):void
+			{
+				movedIn = false;
+			}
+			
+			protected function onDrop(event:NativeDragEvent):void
+			{
+				var dropfiles : Array = event.clipboard.getData( ClipboardFormats.FILE_LIST_FORMAT ) as Array;
+				try
+				{
+					readSourceFile(dropfiles);
+				}
+				catch( error : Error )
+				{
+					Alert.show( "Some errors occured while reading original files.Please try again." );
+				}
+			}
+			
+			
+			private function readSourceFile(dropfiles:Array):void
+			{
+				
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:VBox id="borderShape"
+			 height="220" width="220"
+			 backgroundColor="#A4A4A4" horizontalAlign="center" verticalAlign="middle">
+		<mx:VBox id="draginArea"
+				 height="180" width="180"
+				 backgroundColor="#222222" horizontalAlign="center" verticalAlign="middle" verticalGap="2">
+			
+			<mx:Text id="squareText" text="Drop here" width="116" mouseEnabled="false"
+					 color="#82D4E5" fontSize="15" textAlign="center"
+					 mouseChildren="false" />
+		</mx:VBox>
+	</mx:VBox>
+	<mx:Text height="100%" text="Drag and drop the folder contains original png files or the files themselfs into the square" width="100%"
+			 color="#C8C8C8" fontSize="12" textAlign="center" />
+</mx:HBox>

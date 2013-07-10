@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						xmlns:mx="library://ns.adobe.com/flex/mx" 
+						height="500" layout="vertical" width="800"
+						backgroundColor="#222222" paddingBottom="0" paddingLeft="0" paddingRight="0"
+						paddingTop="0" verticalGap="0"
+						showTitleBar="false" showStatusBar="false" xmlns:local="*" >
+	<fx:Style source="main.css" />
+	<fx:Script>
+		<![CDATA[
+		
+			
+			import mx.controls.Alert;
+			
+			[Embed( source='assets/16.png' )]
+			private var icon16 : Class;
+			
+			
+			protected function label1_clickHandler( event : MouseEvent ) : void
+			{
+				Alert.show( "BLANDON.DU@GAMESYS.CO.UK  BLANDON.TRUEGRAVE@GMAIL.COM");
+			}
+			
+			private function dockHandler() : void
+			{
+				this.nativeWindow.visible = false;
+				addSysTrayIcon();
+			}
+			
+			private function addSysTrayIcon() : void
+			{
+				this.nativeApplication.icon.bitmaps = [ new icon16()];
+				
+				if( NativeApplication.supportsSystemTrayIcon )
+				{
+					var sti : SystemTrayIcon = SystemTrayIcon( this.nativeApplication.icon );
+					sti.tooltip = "click to show main window";
+					sti.addEventListener( MouseEvent.CLICK, showAppWindow );
+				}
+			}
+			
+			private function showAppWindow( event : MouseEvent ) : void
+			{
+				this.nativeWindow.visible = true;
+				this.nativeApplication.icon.bitmaps = [];
+				
+				this.nativeWindow.orderToFront();
+				
+				this.activate();
+			}
+			
+			private function exitHandler() : void
+			{
+				this.exit();
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:HBox height="64" width="100%"
+			 mouseDown="this.nativeWindow.startMove()"
+			 backgroundColor="#111111" horizontalAlign="right" paddingLeft="20" paddingRight="20"
+			 verticalAlign="middle">
+		<mx:Label selectable="false" text="IWI TILED TEXTURE SPRITESHEET GENERATOR" width="100%"
+				  color="#AAF0FF" fontSize="23" />
+		<mx:Label selectable="false" text="version 1.0"
+				  click="label1_clickHandler(event)"
+				  color="#579BAA" paddingTop="10" />
+		<mx:Spacer height="10" width="100%" />
+		<mx:LinkButton height="28" label="_" width="28" x="414"
+					   y="7"
+					   click="dockHandler()"
+					   color="#D9D9D9" fontFamily="Arial" fontWeight="bold" paddingBottom="2"
+					   paddingLeft="0" paddingRight="0" />
+		<mx:LinkButton height="28" label="X" width="28" x="444"
+					   y="7"
+					   click="exitHandler()"
+					   color="#D9D9D9" fontFamily="Verdana" fontSize="13" fontWeight="bold"
+					   textAlign="left" />
+	</mx:HBox>
+	<mx:ViewStack id="mainViewstack"
+				  height="100%" width="100%">
+		<local:TileMapGenerator/>
+	</mx:ViewStack>
+</mx:WindowedApplication>
