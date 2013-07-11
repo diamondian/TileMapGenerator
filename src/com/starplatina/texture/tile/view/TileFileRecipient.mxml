@@ -3,6 +3,7 @@
 		 verticalAlign="middle" horizontalAlign="center" horizontalGap="50" paddingLeft="100" paddingRight="100" creationComplete="creationCompleteHandler(event)">
 	<mx:Script>
 		<![CDATA[
+			import com.starplatina.texture.tile.TileMapManager;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			private var _movedIn:Boolean;
@@ -93,6 +94,6 @@
 					 mouseChildren="false" />
 		</mx:VBox>
 	</mx:VBox>
-	<mx:Text  width="100%" text="Drag and drop the folder contains original png files or the files themselfs into the square"
+	<mx:Text  width="100%" text="Drag and drop the folder which contains original png files or these files themselves into the square left hand side."
 			 color="#C8C8C8" fontSize="12" textAlign="center" />
 </mx:HBox>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+		 verticalAlign="middle" horizontalAlign="center" horizontalGap="50" paddingLeft="100" paddingRight="100" creationComplete="creationCompleteHandler(event)">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			public function set urlStr(value:String):void
+			{
+				txt.text = 'Done! you can now find your tiled textures files at:' + value;
+			}
+
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Text id="txt" color="#82D4E5" fontSize="15" textAlign="center"/>
+</mx:HBox>

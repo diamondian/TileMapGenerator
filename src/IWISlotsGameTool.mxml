@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
 						xmlns:mx="library://ns.adobe.com/flex/mx" 
-						height="500" layout="vertical" width="800"
+						height="640" layout="vertical" width="980"
 						backgroundColor="#222222" paddingBottom="0" paddingLeft="0" paddingRight="0"
 						paddingTop="0" verticalGap="0"
-						showTitleBar="false" showStatusBar="false" xmlns:local="*" applicationComplete="windowedapplication1_applicationCompleteHandler(event)" >
+						showTitleBar="false" showStatusBar="false" xmlns:local="*" applicationComplete="windowedapplication1_applicationCompleteHandler(event)" xmlns:view="com.starplatina.texture.tile.view.*" >
 	<fx:Style source="main.css" />
 	<fx:Script>
 		<![CDATA[
+			import com.starplatina.texture.tile.TileMapManager;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			
@@ -58,11 +59,17 @@
 			{
 				_tilesManager = TileMapManager.getInstance();
 				_tilesManager.addEventListener(TileMapManager.FILE_PROCESSED,fileProcessedHandler);
+				_tilesManager.addEventListener(TileMapManager.TILE_DATA_GENERATED,tileDataGeneratedHandler);
 			}
 			
 			protected function fileProcessedHandler(event:Event):void
 			{
 				mainViewstack.selectedIndex = 1;
+			}
+			
+			protected function tileDataGeneratedHandler(event:Event):void
+			{
+				mainViewstack.selectedIndex = 2;
 			}
 			
 		]]>
@@ -90,7 +97,8 @@
 	</mx:HBox>
 	<mx:ViewStack id="mainViewstack" creationPolicy="all"
 				  height="100%" width="100%">
-		<local:TileMapGenerator/>
-		<local:ParameterPanel/>
+		<view:TileFileRecipient/>
+		<view:ParameterPanel id="param"/>
+		<view:OutPutView  urlStr="{param.url}"/>
 	</mx:ViewStack>
 </mx:WindowedApplication>
