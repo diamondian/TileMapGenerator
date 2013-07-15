@@ -1,3 +1,6 @@
+/**
+ * 2013.7 Copyright Reserved By Blandon.Du.
+ */
 package com.starplatina.texture.tile 
 {
 	import flash.display.BitmapData;

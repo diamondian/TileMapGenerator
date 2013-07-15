@@ -3,7 +3,11 @@
 		 verticalAlign="middle" horizontalAlign="center" horizontalGap="50" paddingLeft="100" paddingRight="100" creationComplete="creationCompleteHandler(event)">
 	<mx:Script>
 		<![CDATA[
+			/**
+			 * 2013.7 Copyright Reserved By Blandon.Du.
+			 */
 			import com.starplatina.texture.tile.TileMapManager;
+			
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			private var _movedIn:Boolean;
@@ -42,8 +46,12 @@
 				movedIn = true;
 				var transferable : Clipboard = event.clipboard;
 				const files : Array = event.clipboard.getData( ClipboardFormats.FILE_LIST_FORMAT ) as Array;
-				if(files.length == 1 && File(files[0]).isDirectory == false){					
-					return;
+				if(files.length == 1){		
+					if(File(files[0]).isDirectory == false){
+						return;
+					}else{
+						NativeDragManager.acceptDragDrop( draginArea );
+					}
 				}				
 				for each (var file:File in files) 
 				{
@@ -64,6 +72,10 @@
 				var dropfiles : Array = event.clipboard.getData( ClipboardFormats.FILE_LIST_FORMAT ) as Array;
 				try
 				{
+					if(dropfiles.length == 1){
+						dropfiles = File(dropfiles[0]).getDirectoryListing();
+					}
+					
 					readSourceFile(dropfiles);					
 				}
 				catch( error : Error )

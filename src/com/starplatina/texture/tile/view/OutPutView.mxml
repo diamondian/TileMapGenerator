@@ -1,22 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
-		 verticalAlign="middle" horizontalAlign="center" horizontalGap="50" paddingLeft="100" paddingRight="100" creationComplete="creationCompleteHandler(event)">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+		 verticalAlign="middle" horizontalAlign="center" horizontalGap="50" paddingLeft="100" paddingRight="100"
+		 >
 	<mx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
+			private var _file:File;
 			
-			public function set urlStr(value:String):void
+			/**
+			 * 2013.7 Copyright Reserved By Blandon.Du.
+			 */
+			public function set previewBitmap(value:Bitmap):void
 			{
-				txt.text = 'Done! you can now find your tiled textures files at:' + value;
+				outcome.source = value;
 			}
 
-			protected function creationCompleteHandler(event:FlexEvent):void
+			public function set targetFolder(file:File):void
 			{
-				// TODO Auto-generated method stub
-				
+				_file = file;
+				navigator.label = file.nativePath + "  (click to navigate)";
+			}
+
+			protected function navigator_clickHandler(event:MouseEvent):void
+			{
+				_file.openWithDefaultApplication();
 			}
 			
 		]]>
 	</mx:Script>
-	<mx:Text id="txt" color="#82D4E5" fontSize="15" textAlign="center"/>
-</mx:HBox>
+	<mx:HBox height="400" width="400"
+			 paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20"
+			 borderStyle="solid" borderColor="#ffffff">		
+		<mx:HBox backgroundColor="#ffffff" width="100%" height="100%">
+			<mx:Image id="outcome" height="100%" width="100%" smoothBitmapContent="true"/>
+		</mx:HBox>
+	</mx:HBox>
+	<mx:Spacer height="20"/>
+	<mx:Text id="txt" text="Done! Now you can find your tiled textures files at:" color="#82D4E5" fontSize="15" textAlign="center"/>
+	<mx:LinkButton id="navigator" color="#ffffff" click="navigator_clickHandler(event)"/>
+</mx:VBox>

@@ -1,3 +1,6 @@
+/**
+ * 2013.7 Copyright Reserved By Blandon.Du.
+ */
 package com.starplatina.texture.tile
 {
 	import flash.display.BitmapData;
@@ -16,7 +19,7 @@ package com.starplatina.texture.tile
 		private var _tileWidth:int;
 		private var _tileHeight:int;
 		
-		public function TileMapData(tileSheetBitmapData:BitmapData,textures:Array,tileWidth:int, tileHeight:int) 
+		public function TileMapData(tileSheetBitmapData:BitmapData,textures:Vector.<TileTexture>,tileWidth:int, tileHeight:int) 
 		{
 			_tileSheetBitmapData = tileSheetBitmapData;
 			_tileWidth = tileWidth;
@@ -24,18 +27,23 @@ package com.starplatina.texture.tile
 			parseXML(textures);
 		}
 		
-		private function parseXML(textures:Array):void
+		private function parseXML(textures:Vector.<TileTexture>):void
 		{
-			for each (var tiles:Vector.<Tile> in textures) 
+			for each (var tileTexture:TileTexture in textures) 
 			{
 				var texture:XML = _textureXMLnodeTemplate.copy();
-				for each (var tile:Tile in tiles) 
+				texture.@name = tileTexture.name;
+				texture.@width = tileTexture.width;
+				texture.@height = tileTexture.height;
+				texture.@numberTiles = tileTexture.tiles.length;
+				
+				for each (var tile:Tile in tileTexture.tiles) 
 				{
 					//sheet
 					var sheetNode:XML = _sheetNodeTemplate.copy();
 					sheetNode.@name = tile.idx;
 					sheetNode.@x = tile.x;
-					sheetNode.@y - tile.y;
+					sheetNode.@y = tile.y;
 					sheetNode.@width = _tileWidth;
 					sheetNode.@height = _tileHeight;
 					
@@ -49,17 +57,21 @@ package com.starplatina.texture.tile
 				}
 				_texturesXML.appendChild(texture);
 			}
-			
 		}
 		
 		public function get texturesXMLList():XMLList
 		{
-			return _texturesXML.children();
+			return _texturesXML.Indexes;
 		}
 
 		public function get tileSheetXML():XML
 		{
 			return _tileSheetXML;
+		}
+		
+		public static function getXMLStr(xml:XML):String
+		{
+			return '<?xml version="1.0" encoding="utf-8"?>'+"\n"+xml.toXMLString();
 		}
 
 		public function get tileSheetBitmapData():BitmapData

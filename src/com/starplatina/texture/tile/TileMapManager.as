@@ -1,5 +1,9 @@
+/**
+ * 2013.7 Copyright Reserved By Blandon.Du.
+ */
 package com.starplatina.texture.tile
 {
+	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
@@ -9,8 +13,10 @@ package com.starplatina.texture.tile
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	import flash.geom.Matrix;
-	import flash.geom.Rectangle;
 	import flash.utils.ByteArray;
+	
+	import mx.controls.Alert;
+	import mx.graphics.codec.PNGEncoder;
 
 	public class TileMapManager extends EventDispatcher
 	{
@@ -18,10 +24,11 @@ package com.starplatina.texture.tile
 		public static const TILE_DATA_GENERATED:String = "TILE_DATA_GENERATED";
 		
 		private static var instance:TileMapManager;
+		private var _output:File;
 		
-		public function get tileMapData():TileMapData
+		public function get previewOutcome():Bitmap
 		{
-			return _tileMapData;
+			return _tileMapData?(new Bitmap(_tileMapData.tileSheetBitmapData)):null;
 		}
 
 		public function get fileNames():Array
@@ -31,12 +38,12 @@ package com.starplatina.texture.tile
 
 		public function get datas():Array
 		{
-			return _datas;
+			return _bitmapDatas;
 		}
 
 		public function getBitmapByID(value:String):BitmapData
 		{
-			return _datas[_fileNames.indexOf(value)] as BitmapData;
+			return _bitmapDatas[_fileNames.indexOf(value)] as BitmapData;
 		}
 		
 		public static function getInstance():TileMapManager
@@ -45,14 +52,14 @@ package com.starplatina.texture.tile
 			return instance;
 		}
 		
-		private var _datas:Array;
+		private var _bitmapDatas:Array;
 		private var _fileNames:Array;
 		private var _tileMapData:TileMapData;
 		private var _vector:Vector.<uint>;
 		
 		public function TileMapManager(s:shit)
 		{
-			_datas = [];
+			_bitmapDatas = [];
 			_fileNames = [];
 		}
 		
@@ -74,7 +81,7 @@ package com.starplatina.texture.tile
 						const bitmapdata:BitmapData = new BitmapData(LoaderInfo(e.target).width,LoaderInfo(e.target).height,true,0x0);
 						bitmapdata.draw(LoaderInfo(e.target).content);  
 						var index:int = int(LoaderInfo(e.target).loader.name);
-						_datas[index] = bitmapdata;		
+						_bitmapDatas[index] = bitmapdata;		
 						_imageCreated++;
 						if(_imageCreated == files.length){
 							notifyFilePreProcessed();
@@ -89,22 +96,30 @@ package com.starplatina.texture.tile
 			this.dispatchEvent(new Event(FILE_PROCESSED));
 		}
 		
-		private function notifyTileDataGenerated():void
+		private function notifyTileFilesGenerated():void
 		{
 			this.dispatchEvent(new Event(TILE_DATA_GENERATED));
 		}
 		
-		public function buildTileMap(sheetWidth:int,sheetHeight:int,tileWidth:int, tileHeight:int,threshold:int = 0x00):void
+		public function buildTileMap(sheetWidth:int,sheetHeight:int,tileWidth:int, tileHeight:int,output:File,threshold:int = 0x00):void
 		{
+			_output = output;
 			const spriteSheetData:BitmapData = new BitmapData(sheetWidth,sheetHeight,true,0x0);
 			const hNumber:int = sheetWidth / tileWidth;
 			var tiles:Vector.<Tile> = new Vector.<Tile>();
-			var textures:Array = [];
-			for (var i:int = 0; i < _datas.length; i++) 
+			var textures:Vector.<TileTexture> = new Vector.<TileTexture>();
+			for (var i:int = 0; i < _bitmapDatas.length; i++) 
 			{
-				var data:BitmapData = _datas[i] as BitmapData;
-				textures.push(getTilesFromBitmapData(data,tileWidth,tileHeight,threshold));
-				tiles = tiles.concat(textures[i]); 
+				var data:BitmapData = _bitmapDatas[i] as BitmapData;
+				
+				const tileTexture:TileTexture = new TileTexture();
+				tileTexture.name = _fileNames[i];
+				tileTexture.width = data.width;
+				tileTexture.height = data.height;
+				tileTexture.tiles = getTilesFromBitmapData(data,tileWidth,tileHeight,threshold);
+				
+				textures.push(tileTexture);
+				tiles = tiles.concat(tileTexture.tiles); 
 			}
 			for (i = 0; i < tiles.length; i++) 
 			{
@@ -121,7 +136,47 @@ package com.starplatina.texture.tile
 			}
 			_tileMapData = new TileMapData(spriteSheetData,textures,tileWidth, tileHeight);
 			
-			notifyTileDataGenerated()
+			saveFiles();
+			
+		}
+		
+		private function saveFiles():void
+		{
+			var spriteSheet : FileStream = new FileStream();
+			var spriteSheetXML : FileStream = new FileStream();
+			const pngFile:File = _output.resolvePath("tile.png");
+			const mainXML:File = _output.resolvePath("tile.xml");
+			
+			const png:PNGEncoder = new PNGEncoder();
+			const ba:ByteArray = png.encode(_tileMapData.tileSheetBitmapData);
+			
+			const textureXMLList:XMLList = _tileMapData.texturesXMLList;
+			
+			try{
+				spriteSheet.open(pngFile,FileMode.WRITE);
+				spriteSheet.writeBytes(ba);
+				spriteSheet.close();
+				
+				spriteSheetXML.open(mainXML,FileMode.WRITE);
+				spriteSheetXML.writeUTFBytes(TileMapData.getXMLStr(_tileMapData.tileSheetXML));
+				spriteSheet.close();
+				
+				for each (var xml:XML in textureXMLList) 
+				{
+					const fileName:String = xml.@name + ".xml";
+					const textureXML:File = _output.resolvePath(fileName);
+					const fs:FileStream = new FileStream();
+					fs.open(textureXML,FileMode.WRITE);
+					fs.writeUTFBytes(TileMapData.getXMLStr(xml));
+					fs.close();
+				}
+				
+				notifyTileFilesGenerated();
+				
+			}catch(error:Error){
+				Alert.show(error.message);
+			}
+				
 		}
 		
 		private function getNumbericID(number:int,digits:int = 6):String
