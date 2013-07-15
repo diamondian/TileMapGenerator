@@ -56,6 +56,7 @@ package com.starplatina.texture.tile
 		private var _fileNames:Array;
 		private var _tileMapData:TileMapData;
 		private var _vector:Vector.<uint>;
+		private var _numberTilesTotal:int;
 		
 		public function TileMapManager(s:shit)
 		{
@@ -127,7 +128,6 @@ package com.starplatina.texture.tile
 				var indexX:int = i % hNumber;
 				var indexY:int = Math.floor(i / hNumber);
 				
-				tiles[i].idx = getNumbericID(i);
 				tiles[i].x = indexX * tileWidth;
 				tiles[i].y = indexY * tileHeight;
 				
@@ -211,9 +211,12 @@ package com.starplatina.texture.tile
 					
 					if(!isOpaque(bmd,threshold)){
 						var tile:Tile = new Tile();
-						tile.offset = j * vNumber + i;
+						tile.offset = j * hNumber + (i + 1);
+						tile.idx = getNumbericID(_numberTilesTotal);
 						tile.data = bmd;
 						tiles.push(tile);
+						
+						_numberTilesTotal++;
 					}
 				}
 			}
