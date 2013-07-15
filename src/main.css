@@ -1,10 +1,11 @@
 /* CSS file */
-
-Application
+@namespace mx "library://ns.adobe.com/flex/mx";
+mx|Application
 {
-	cornerRadius:0	
+	cornerRadius:0;	
+	themeColor: #00DEFF;
 }
-Button
+mx|Button
 {
 	fillAlphas: 1.0, 1.0, 1.0, 1.0;
 	fillColors: #444444, #444444;
@@ -15,7 +16,7 @@ Button
 	textSelectedColor: #008D9E;
 	themeColor: #00DEFF;
 }
-ComboBox {
+mx|ComboBox {
 	cornerRadius: 0;
 	color: #cccccc;
 	borderColor: #b7babc;

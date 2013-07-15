@@ -94,10 +94,9 @@
 			
 		]]>
 	</mx:Script>
-	<mx:VBox id="borderShape"
-			 height="220" width="220"
+	<mx:VBox id="borderShape" borderStyle="solid" borderColor="#FFFFFF" height="220" width="220"
 			 backgroundColor="#A4A4A4" horizontalAlign="center" verticalAlign="middle">
-		<mx:VBox id="draginArea"
+		<mx:VBox id="draginArea" borderStyle="solid" borderColor="#FFFFFF"
 				 height="180" width="180"
 				 backgroundColor="#222222" horizontalAlign="center" verticalAlign="middle" verticalGap="2">
 			
