@@ -14,18 +14,26 @@ package com.starplatina.texture.tile
 	import flash.filesystem.FileStream;
 	import flash.geom.Matrix;
 	import flash.utils.ByteArray;
+	import flash.utils.setTimeout;
 	
 	import mx.controls.Alert;
 	import mx.graphics.codec.PNGEncoder;
 
 	public class TileMapManager extends EventDispatcher
 	{
+		public static const START_READING_FILES:String = "START_READING_FILES";
+		public static const START_WRITING_FILES:String = "START_WRITING_FILES";
 		public static const FILE_PROCESSED:String = "FILE_PROCESSED";
 		public static const TILE_DATA_GENERATED:String = "TILE_DATA_GENERATED";
 		
 		private static var instance:TileMapManager;
 		private var _output:File;
 		
+		public function get tileMapData():TileMapData
+		{
+			return _tileMapData;
+		}
+
 		public function get previewOutcome():Bitmap
 		{
 			return _tileMapData?(new Bitmap(_tileMapData.tileSheetBitmapData)):null;
@@ -57,39 +65,69 @@ package com.starplatina.texture.tile
 		private var _tileMapData:TileMapData;
 		private var _vector:Vector.<uint>;
 		private var _numberTilesTotal:int;
+		private var _scaleFactor:Number;
+		private var _fsIndexes:Array;
+		private var _imageCreated:int;
+		private var _numberFiles:uint;
+		private var _timeDelay:Number = 1;
 		
 		public function TileMapManager(s:shit)
 		{
 			_bitmapDatas = [];
 			_fileNames = [];
+			_fsIndexes = [];
 		}
 		
 		public function set originalFiles(files:Array):void
 		{			
-			var _imageCreated:int;
-			for (var i:int = 0; i < files.length; i++) 
-			{
-				var file:File = files[i] as File;
-				_fileNames.push(file.name.split(".")[0]);
-				var fileStream : FileStream = new FileStream();
-				fileStream.open( file, FileMode.READ );
-				const ba:ByteArray = new ByteArray();
-				fileStream.readBytes(ba);
-				var loader:Loader = new Loader();
-				loader.name = i+"";
-				loader.contentLoaderInfo.addEventListener(Event.COMPLETE, 
-					function(e:Event):void {
-						const bitmapdata:BitmapData = new BitmapData(LoaderInfo(e.target).width,LoaderInfo(e.target).height,true,0x0);
-						bitmapdata.draw(LoaderInfo(e.target).content);  
-						var index:int = int(LoaderInfo(e.target).loader.name);
-						_bitmapDatas[index] = bitmapdata;		
-						_imageCreated++;
-						if(_imageCreated == files.length){
-							notifyFilePreProcessed();
-						}
-				});
-				loader.loadBytes(ba);
-			}			
+			notifyFileReadingFiles();
+			
+			_numberFiles = files.length;
+			
+			setTimeout(function():void{
+				for (var i:int = 0; i < files.length; i++) 
+				{
+					var file:File = files[i] as File;
+					_fileNames.push(file.name.split(".")[0]);
+					var fileStream : FileStream = new FileStream();
+					fileStream.addEventListener(Event.COMPLETE,onFileReaded);
+					_fsIndexes.push(fileStream)
+					fileStream.openAsync( file, FileMode.READ );
+				}			
+			},_timeDelay * 1000);
+		}
+		
+		protected function onFileReaded(event:Event):void
+		{
+			const fileStream:FileStream = FileStream(event.target);
+			const ba:ByteArray = new ByteArray();
+			fileStream.readBytes(ba);
+			var loader:Loader = new Loader();
+			loader.name = _fsIndexes.indexOf(fileStream)+"";
+			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onImageLoaded);
+			loader.loadBytes(ba);
+		}
+		
+		protected function onImageLoaded(event:Event):void
+		{
+			const bitmapdata:BitmapData = new BitmapData(LoaderInfo(event.target).width,LoaderInfo(event.target).height,true,0x0);
+			bitmapdata.draw(LoaderInfo(event.target).content);  
+			var index:int = int(LoaderInfo(event.target).loader.name);
+			_bitmapDatas[index] = bitmapdata;		
+			_imageCreated++;
+			if(_imageCreated == _numberFiles){
+				notifyFilePreProcessed();
+			}
+		}
+		
+		private function notifyFileReadingFiles():void
+		{
+			this.dispatchEvent(new Event(START_READING_FILES));
+		}
+		
+		private function notifyFileWritingFiles():void
+		{
+			this.dispatchEvent(new Event(START_WRITING_FILES));
 		}
 		
 		private function notifyFilePreProcessed():void
@@ -102,9 +140,17 @@ package com.starplatina.texture.tile
 			this.dispatchEvent(new Event(TILE_DATA_GENERATED));
 		}
 		
-		public function buildTileMap(sheetWidth:int,sheetHeight:int,tileWidth:int, tileHeight:int,output:File,threshold:int = 0x00):void
+		public function buildTileMap(sheetWidth:int,sheetHeight:int,tileWidth:int, tileHeight:int,output:File,threshold:int = 0x00,scaleFactor:Number = 1):void
 		{
+			notifyFileWritingFiles();
+			
+			setTimeout(function():void{
+			
 			_output = output;
+			_scaleFactor = scaleFactor;
+			
+			resizeTextures(_scaleFactor);
+			
 			const spriteSheetData:BitmapData = new BitmapData(sheetWidth,sheetHeight,true,0x0);
 			const hNumber:int = sheetWidth / tileWidth;
 			var tiles:Vector.<Tile> = new Vector.<Tile>();
@@ -131,6 +177,11 @@ package com.starplatina.texture.tile
 				tiles[i].x = indexX * tileWidth;
 				tiles[i].y = indexY * tileHeight;
 				
+				if(tiles[i].y + tileHeight > spriteSheetData.height){
+					Alert.show("Size of sprite sheet is not big enough to contain all tiles,please try to use a bigger size of it or reduce tile size instead.");
+					return;
+				}
+				
 				matrix.translate(tiles[i].x,tiles[i].y);
 				spriteSheetData.draw(tiles[i].data,matrix);
 			}
@@ -138,6 +189,22 @@ package com.starplatina.texture.tile
 			
 			saveFiles();
 			
+			},_timeDelay * 1000);
+		}
+		
+		private function resizeTextures(_scaleFactor:Number):void
+		{
+			const newBMDs:Array = [];
+			for each (var bitmapdata:BitmapData in _bitmapDatas) 
+			{
+				var matrix:Matrix = new Matrix();
+				matrix.scale(_scaleFactor, _scaleFactor);
+				
+				var newBMD:BitmapData = new BitmapData(bitmapdata.width * _scaleFactor, bitmapdata.height * _scaleFactor, true, 0x0);
+				newBMD.draw(bitmapdata, matrix, null, null, null, true);
+				newBMDs.push(newBMD);
+			}
+			_bitmapDatas = newBMDs;
 		}
 		
 		private function saveFiles():void

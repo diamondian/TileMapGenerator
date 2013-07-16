@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" horizontalAlign="center" verticalAlign="middle" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" backgroundColor="#333333" borderStyle="solid" borderColor="#777777" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="200"
+		  creationComplete="hbox1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			public static const STATE_READING:int = 0;
+			public static const STATE_WRITING:int = 1;
+			
+			[Bindable]
+			public var descriptionText:String = "";
+			
+			private var readingFileStr:String = "Loading and processing images...";
+			private var writingFileStr:String = "Generating textures...";
+			
+			public function set promptState(state:int):void
+			{
+				if(state == STATE_READING){
+					descriptionText = readingFileStr;
+				}else if(state == STATE_WRITING){
+					descriptionText = writingFileStr;
+				}
+				if(txt){
+					txt.text = descriptionText;
+				}
+			}
+			
+			protected function hbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				txt.text = descriptionText;
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:Text  width="100%" id="txt"
+			  color="#C8C8C8" fontSize="12" textAlign="center" />
+</mx:HBox>

@@ -48,14 +48,17 @@
 				const files : Array = event.clipboard.getData( ClipboardFormats.FILE_LIST_FORMAT ) as Array;
 				if(files.length == 1){		
 					if(File(files[0]).isDirectory == false){
+						Alert.show("At least provide more than 1 images");
 						return;
 					}else{
 						NativeDragManager.acceptDragDrop( draginArea );
+						return;
 					}
 				}				
 				for each (var file:File in files) 
 				{
 					if(file.isDirectory || file.extension != "png"){
+						Alert.show("Make sure all files you are draging are PNG images, or just drag the folder in directly.");
 						return;
 					}
 				}
@@ -72,8 +75,20 @@
 				var dropfiles : Array = event.clipboard.getData( ClipboardFormats.FILE_LIST_FORMAT ) as Array;
 				try
 				{
-					if(dropfiles.length == 1){
+					const files:Array = [];
+					if(dropfiles.length == 1 && File(dropfiles[0]).isDirectory){
 						dropfiles = File(dropfiles[0]).getDirectoryListing();
+						for (var i:int = 0; i < dropfiles.length; i++) 
+						{
+							if(File(dropfiles[i]).extension == "png" || File(dropfiles[i]).extension == "PNG"){
+								files.push(dropfiles[i]);
+							}
+						}
+						dropfiles = files;
+					}
+					if(dropfiles.length == 0){
+						Alert.show("Empty folder,please try an other one.");
+						return;
 					}
 					
 					readSourceFile(dropfiles);					

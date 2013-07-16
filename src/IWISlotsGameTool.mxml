@@ -8,17 +8,17 @@
 	<fx:Style source="main.css" />
 	<fx:Script>
 		<![CDATA[
-			/**
-			 * 2013.7 Copyright Reserved By Blandon.Du.
-			 */
 			import com.starplatina.texture.tile.TileMapManager;
+			import com.starplatina.texture.tile.view.StatusWindow;
 			
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
 			
 			[Embed( source='assets/icon16.png' )]
 			private var icon16 : Class;
 			private var _tilesManager:TileMapManager;
+			private var _currentStateWindow:StatusWindow;
 			
 			
 			protected function label1_clickHandler( event : MouseEvent ) : void
@@ -62,20 +62,45 @@
 			protected function windowedapplication1_applicationCompleteHandler(event:FlexEvent):void
 			{
 				_tilesManager = TileMapManager.getInstance();
+				_tilesManager.addEventListener(TileMapManager.START_READING_FILES,showReading);
+				_tilesManager.addEventListener(TileMapManager.START_WRITING_FILES,showWriting);
 				_tilesManager.addEventListener(TileMapManager.FILE_PROCESSED,fileProcessedHandler);
 				_tilesManager.addEventListener(TileMapManager.TILE_DATA_GENERATED,tileDataGeneratedHandler);
+				_currentStateWindow = new StatusWindow();
 			}
 			
 			protected function fileProcessedHandler(event:Event):void
 			{
+				PopUpManager.removePopUp(_currentStateWindow);
 				mainViewstack.selectedIndex = 1;
 			}
 			
 			protected function tileDataGeneratedHandler(event:Event):void
 			{
+				PopUpManager.removePopUp(_currentStateWindow);
 				outputView.previewBitmap = _tilesManager.previewOutcome;
 				outputView.targetFolder = param.saveFile;
+				outputView.outcome = _tilesManager.tileMapData;
+				
 				mainViewstack.selectedIndex = 2;
+			}
+			
+			protected function showReading(event:Event):void
+			{
+				_currentStateWindow.promptState = StatusWindow.STATE_READING;
+				showStateWindow()
+			}
+			
+			protected function showWriting(event:Event):void
+			{
+				_currentStateWindow.promptState = StatusWindow.STATE_WRITING;
+				showStateWindow()
+			}
+			
+			private function showStateWindow():void
+			{
+				PopUpManager.addPopUp(_currentStateWindow,this,true);
+				PopUpManager.centerPopUp(_currentStateWindow);
 			}
 			
 		]]>
@@ -86,7 +111,7 @@
 			 verticalAlign="middle">
 		<mx:Label selectable="false" text="IWI TILED TEXTURE SPRITESHEET GENERATOR" width="100%"
 				  color="#AAF0FF" fontSize="23" />
-		<mx:Label selectable="false" text="version 1.0"
+		<mx:Label selectable="false" text="version 1.1"
 				  click="label1_clickHandler(event)"
 				  color="#579BAA" paddingTop="10" />
 		<mx:Spacer height="10" width="100%" />

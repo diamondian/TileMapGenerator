@@ -4,14 +4,18 @@
 		 >
 	<mx:Script>
 		<![CDATA[
+			import com.starplatina.texture.tile.TileMapData;
 			private var _file:File;
+			
+			[Bindable]
+			private var statistic:String = "";
 			
 			/**
 			 * 2013.7 Copyright Reserved By Blandon.Du.
 			 */
 			public function set previewBitmap(value:Bitmap):void
 			{
-				outcome.source = value;
+				previewImage.source = value;
 			}
 
 			public function set targetFolder(file:File):void
@@ -25,16 +29,22 @@
 				_file.openWithDefaultApplication();
 			}
 			
+			public function set outcome(value:TileMapData):void
+			{
+				statistic = "Done.There are "+value.texturesXMLList.length()+" sub texture files(xml) and "+value.tileSheetXML.children().length()+" tiles have been generated.";
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:HBox height="400" width="400"
 			 paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20"
 			 borderStyle="solid" borderColor="#ffffff">		
 		<mx:HBox backgroundColor="#ffffff" width="100%" height="100%">
-			<mx:Image id="outcome" height="100%" width="100%" smoothBitmapContent="true"/>
+			<mx:Image id="previewImage" height="100%" width="100%" smoothBitmapContent="true"/>
 		</mx:HBox>
 	</mx:HBox>
 	<mx:Spacer height="20"/>
-	<mx:Text id="txt" text="Done! Now you can find your tiled textures files at:" color="#82D4E5" fontSize="15" textAlign="center"/>
+	<mx:Text text="{statistic}" color="#82D4E5" fontSize="15" textAlign="center"/>
+	<mx:Text id="txt" text="Now you can find your tiled textures files at:" color="#82D4E5" fontSize="15" textAlign="center"/>
 	<mx:LinkButton id="navigator" color="#ffffff" click="navigator_clickHandler(event)"/>
 </mx:VBox>
