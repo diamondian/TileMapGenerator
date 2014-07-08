@@ -24,7 +24,9 @@ package com.starplatina.texture.tile
 		public static const START_READING_FILES:String = "START_READING_FILES";
 		public static const START_WRITING_FILES:String = "START_WRITING_FILES";
 		public static const FILE_PROCESSED:String = "FILE_PROCESSED";
+		public static const NOTIFYCLOSEPOPUPS:String = "NOTIFYCLOSEPOPUPS";
 		public static const TILE_DATA_GENERATED:String = "TILE_DATA_GENERATED";
+		public static const PREVIEW_DATA_GENERATED:String = "PREVIEW_DATA_GENERATED";
 		
 		private static var instance:TileMapManager;
 		private var _output:File;
@@ -135,12 +137,22 @@ package com.starplatina.texture.tile
 			this.dispatchEvent(new Event(FILE_PROCESSED));
 		}
 		
+		private function notifyClosePopups():void
+		{
+			this.dispatchEvent(new Event(NOTIFYCLOSEPOPUPS));
+		}
+		
+		private function notifyPreviewGenerated():void
+		{
+			this.dispatchEvent(new Event(PREVIEW_DATA_GENERATED));
+		}
+		
 		private function notifyTileFilesGenerated():void
 		{
 			this.dispatchEvent(new Event(TILE_DATA_GENERATED));
 		}
 		
-		public function buildTileMap(sheetWidth:int,sheetHeight:int,tileWidth:int, tileHeight:int,output:File,threshold:int = 0x00,scaleFactor:Number = 1):void
+		public function buildTileMap(sheetWidth:int,sheetHeight:int,tileWidth:int, tileHeight:int,output:File,threshold:int = 0x00,scaleFactor:Number = 1,save:Boolean = false):void
 		{
 			notifyFileWritingFiles();
 			
@@ -179,6 +191,7 @@ package com.starplatina.texture.tile
 				
 				if(tiles[i].y + tileHeight > spriteSheetData.height){
 					Alert.show("Size of sprite sheet is not big enough to contain all tiles,please try to use a bigger size of it or reduce tile size instead.");
+					notifyClosePopups();
 					return;
 				}
 				
@@ -187,7 +200,14 @@ package com.starplatina.texture.tile
 			}
 			_tileMapData = new TileMapData(spriteSheetData,textures,tileWidth, tileHeight);
 			
-			saveFiles();
+			if(save)
+			{
+				saveFiles();
+			}
+			else
+			{
+				notifyPreviewGenerated();
+			}
 			
 			},_timeDelay * 1000);
 		}
@@ -278,7 +298,7 @@ package com.starplatina.texture.tile
 					
 					if(!isOpaque(bmd,threshold)){
 						var tile:Tile = new Tile();
-						tile.offset = j * hNumber + (i + 1);
+						tile.offset = j * hNumber + i;
 						tile.idx = getNumbericID(_numberTilesTotal);
 						tile.data = bmd;
 						tiles.push(tile);

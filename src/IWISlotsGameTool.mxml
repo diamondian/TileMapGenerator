@@ -66,6 +66,8 @@
 				_tilesManager.addEventListener(TileMapManager.START_WRITING_FILES,showWriting);
 				_tilesManager.addEventListener(TileMapManager.FILE_PROCESSED,fileProcessedHandler);
 				_tilesManager.addEventListener(TileMapManager.TILE_DATA_GENERATED,tileDataGeneratedHandler);
+				_tilesManager.addEventListener(TileMapManager.PREVIEW_DATA_GENERATED,previewDataGeneratedHandler);
+				_tilesManager.addEventListener(TileMapManager.NOTIFYCLOSEPOPUPS,closePopupHandler);
 				_currentStateWindow = new StatusWindow();
 			}
 			
@@ -83,6 +85,11 @@
 				outputView.outcome = _tilesManager.tileMapData;
 				
 				mainViewstack.selectedIndex = 2;
+			}
+			
+			protected function previewDataGeneratedHandler(event:Event):void
+			{
+				PopUpManager.removePopUp(_currentStateWindow);
 			}
 			
 			protected function showReading(event:Event):void
@@ -103,6 +110,11 @@
 				PopUpManager.centerPopUp(_currentStateWindow);
 			}
 			
+			protected function closePopupHandler(event:Event):void
+			{
+				PopUpManager.removePopUp(_currentStateWindow);
+			}
+			
 		]]>
 	</fx:Script>
 	<mx:HBox height="64" width="100%"
@@ -111,7 +123,7 @@
 			 verticalAlign="middle">
 		<mx:Label selectable="false" text="IWI TILED TEXTURE SPRITESHEET GENERATOR" width="100%"
 				  color="#AAF0FF" fontSize="23" />
-		<mx:Label selectable="false" text="version 1.1"
+		<mx:Label selectable="false" text="version 1.2"
 				  click="label1_clickHandler(event)"
 				  color="#579BAA" paddingTop="10" />
 		<mx:Spacer height="10" width="100%" />
