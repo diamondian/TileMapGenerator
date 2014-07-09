@@ -21,6 +21,10 @@
 			private var _currentStateWindow:StatusWindow;
 			
 			
+			[Bindable]
+			private var _version:String;
+			
+			
 			protected function label1_clickHandler( event : MouseEvent ) : void
 			{
 				Alert.show( "BLANDON.DU@GAMESYS.CO.UK  BLANDON.TRUEGRAVE@GMAIL.COM");
@@ -69,6 +73,10 @@
 				_tilesManager.addEventListener(TileMapManager.PREVIEW_DATA_GENERATED,previewDataGeneratedHandler);
 				_tilesManager.addEventListener(TileMapManager.NOTIFYCLOSEPOPUPS,closePopupHandler);
 				_currentStateWindow = new StatusWindow();
+				
+				var xml : XML = NativeApplication.nativeApplication.applicationDescriptor;
+				var ns : Namespace = xml.namespace();
+				_version = xml.ns::versionNumber;
 			}
 			
 			protected function fileProcessedHandler(event:Event):void
@@ -123,7 +131,7 @@
 			 verticalAlign="middle">
 		<mx:Label selectable="false" text="IWI TILED TEXTURE SPRITESHEET GENERATOR" width="100%"
 				  color="#AAF0FF" fontSize="23" />
-		<mx:Label selectable="false" text="version 1.2"
+		<mx:Label selectable="false" text="{'version '+_version}" fontSize="15"
 				  click="label1_clickHandler(event)"
 				  color="#579BAA" paddingTop="10" />
 		<mx:Spacer height="10" width="100%" />

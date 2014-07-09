@@ -34,7 +34,7 @@
 			[Bindable]
 			public var saveFile:File;
 			[Bindable]
-			public var url:String="No directory selected";
+			public var url:String="";
 			[Bindable]
 			private var currentSample:Bitmap;
 			[Bindable]
@@ -80,7 +80,6 @@
 			protected function button1_clickHandler(event:MouseEvent):void
 			{
 				_tilesManager.buildTileMap(int(sheetWidthComboBox.selectedLabel), int(sheetHeightComboBox.selectedLabel), int(tileWidthComboBox.selectedLabel), int(tileHeightComboBox.selectedLabel), saveFile, slider.value, scaleFactorSlider.value, true);
-				generateButton.enabled=false;
 				previewButton.enabled=false;
 			}
 
@@ -169,7 +168,6 @@
 
 			protected function dirSelected(event:Event):void
 			{
-				generateButton.enabled=saveFile.isDirectory;
 				url=saveFile.nativePath;
 			}
 
@@ -185,7 +183,6 @@
 			{
 				_tilesManager.buildTileMap(int(sheetWidthComboBox.selectedLabel), int(sheetHeightComboBox.selectedLabel), int(tileWidthComboBox.selectedLabel), int(tileHeightComboBox.selectedLabel), saveFile, slider.value, scaleFactorSlider.value, false);
 
-				generateButton.enabled=false;
 				previewButton.enabled=false;
 			}
 
@@ -201,8 +198,7 @@
 			
 			protected function closePopupsHandler(event:Event = null):void
 			{
-				generateButton.enabled=true;
-				previewButton.enabled=true;
+				previewButton.enabled = true;
 			}
 			
 		]]>
@@ -348,7 +344,7 @@
 				   height="35"
 				   click="previewClickHandler(event)"/>
 		<mx:Button id="generateButton"
-				   enabled="false" color="0xff0000"
+				   enabled="{url}" color="0xff0000"
 				   label="Generate"
 				   width="100%"
 				   height="50"

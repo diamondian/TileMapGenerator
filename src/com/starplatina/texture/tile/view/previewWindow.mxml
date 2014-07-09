@@ -33,7 +33,5 @@
 			<mx:Image id="previewImage" source="{_image}" height="100%" width="100%" smoothBitmapContent="true"/>
 		</mx:HBox>
 	</mx:HBox>
-	<s:Spacer height="100%"/>
-	<mx:Label text="Try to minimize the empty(white) space as much as you can."/>
 	<mx:Button label="Close" click="button1_clickHandler(event)"/>
 </mx:VBox>
